@@ -3,29 +3,17 @@
    ================================================== */
 
 :root {
-  --bg-primary: #f7f4ef;
-  /* 燕麥奶底色 */
-  --bg-secondary: #eee7dd;
-  /* 淺卡其背景 */
-  --card-bg: #ffffff;
-  /* 純白卡片 */
-  --card-border: #e2d5c7;
-  /* 柔和奶茶邊框 */
+  /* 奶茶風暖色調 */
+  --bg-primary: #f8f5f0;
+  --bg-secondary: #ede6dc;
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --card-border: #e2d7c9;
 
   --text-main: #4a3b32;
-  /* 深焦糖棕主文字 */
-  --text-muted: #8d7b68;
-  /* 淺棕色次要文字 */
+  --text-muted: #8c7b6c;
 
   --accent-color: #c48b51;
-  /* 泰式奶茶/焦糖主色 */
   --accent-hover: #a67039;
-  /* 按鈕懸停色 */
-  --accent-light: #f3e8dc;
-  /* 淺奶油高亮背景 */
-
-  --shadow-sm: 0 2px 8px rgba(74, 59, 50, 0.06);
-  --shadow-md: 0 4px 16px rgba(74, 59, 50, 0.08);
 }
 
 /* 全局背景與字體覆蓋 */
