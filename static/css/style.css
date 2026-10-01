@@ -1,741 +1,140 @@
-/* ==========================================================================
-   Taiwan Weather GIS — Modern Dark Glassmorphic Design System
-   AIoT L3 CWA HW1 — Gate 3 Local Taiwan GIS
-   ========================================================================== */
+/* ==================================================
+   Taiwan Weather GIS - 燕麥奶茶風格全覆蓋 (Milk Tea Theme)
+   ================================================== */
 
 :root {
-  --bg-primary: #0a0f1d;
-  --bg-surface: rgba(16, 24, 44, 0.85);
-  --bg-surface-hover: rgba(26, 38, 70, 0.95);
-  --bg-glass: rgba(15, 23, 42, 0.75);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-border-focus: rgba(59, 130, 246, 0.6);
+  --bg-primary: #f7f4ef;
+  /* 燕麥奶底色 */
+  --bg-secondary: #eee7dd;
+  /* 淺卡其背景 */
+  --card-bg: #ffffff;
+  /* 純白卡片 */
+  --card-border: #e2d5c7;
+  /* 柔和奶茶邊框 */
 
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --text-dim: #64748b;
+  --text-main: #4a3b32;
+  /* 深焦糖棕主文字 */
+  --text-muted: #8d7b68;
+  /* 淺棕色次要文字 */
 
-  --accent-cyan: #06b6d4;
-  --accent-blue: #3b82f6;
-  --accent-indigo: #6366f1;
-  --accent-violet: #8b5cf6;
-  --accent-emerald: #10b981;
-  --accent-amber: #f59e0b;
-  --accent-rose: #f43f5e;
+  --accent-color: #c48b51;
+  /* 泰式奶茶/焦糖主色 */
+  --accent-hover: #a67039;
+  /* 按鈕懸停色 */
+  --accent-light: #f3e8dc;
+  /* 淺奶油高亮背景 */
 
-  --font-family: 'Outfit', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
-  --shadow-subtle: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
-  --shadow-glow: 0 0 25px rgba(59, 130, 246, 0.3);
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-full: 9999px;
-  --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-sm: 0 2px 8px rgba(74, 59, 50, 0.06);
+  --shadow-md: 0 4px 16px rgba(74, 59, 50, 0.08);
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
+/* 全局背景與字體覆蓋 */
 body {
-  font-family: var(--font-family);
-  background: var(--bg-primary);
-  color: var(--text-main);
-  overflow: hidden;
-  height: 100vh;
-  width: 100vw;
-  -webkit-font-smoothing: antialiased;
+  background-color: var(--bg-primary) !important;
+  color: var(--text-main) !important;
 }
 
-/* ==========================================================================
-   Layout Structure
-   ========================================================================== */
-
-.dashboard-layout {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100vw;
-  background: radial-gradient(circle at 15% 15%, #131d36 0%, #080c16 100%);
-  position: relative;
+/* 卡片、側邊欄、頂部列深色強制覆蓋 */
+div,
+header,
+nav,
+section,
+aside,
+main,
+.card,
+.panel,
+.sidebar,
+.header,
+.stat-card,
+.glass-panel,
+.bg-slate-900,
+.bg-slate-800,
+.bg-slate-950,
+.bg-gray-900 {
+  background-color: var(--card-bg) !important;
+  color: var(--text-main) !important;
+  border-color: var(--card-border) !important;
 }
 
-/* Header */
-.app-header {
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  background: var(--bg-glass);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--glass-border);
-  z-index: 1000;
+/* 頂部列 Header */
+header,
+.header {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid var(--card-border) !important;
+  box-shadow: var(--shadow-sm) !important;
 }
 
-.header-left .logo-badge {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+/* 文字顏色修飾 */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.title,
+strong {
+  color: var(--text-main) !important;
 }
 
-.logo-icon {
-  font-size: 26px;
-  filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.5));
+p,
+span,
+label,
+.subtitle,
+.text-muted,
+.text-slate-400,
+.text-slate-300 {
+  color: var(--text-muted) !important;
 }
 
+/* 按鈕與時段切換切換區 */
+button,
+.btn,
+.tab-btn,
+.time-btn {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--card-border) !important;
+  transition: all 0.2s ease !important;
+}
+
+button.active,
+.btn.active,
+.tab-btn.active,
+.time-btn.active,
+[data-active="true"] {
+  background-color: var(--accent-color) !important;
+  color: #ffffff !important;
+  border-color: var(--accent-color) !important;
+}
+
+/* 狀態標籤 (SQLite / CWA API) */
+.badge,
+.status-badge,
+.data-source-badge {
+  background-color: var(--accent-light) !important;
+  color: var(--accent-color) !important;
+  border: 1px solid var(--card-border) !important;
+}
+
+/* Logo 標題漸層 */
 .logo-text h1 {
-  font-size: 1.15rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #ffffff 30%, #38bdf8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  background: linear-gradient(135deg, #4a3b32 30%, #c48b51 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
 }
 
-.logo-text .subtitle {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  display: block;
-}
-
-/* Header Center - Slot Switcher */
-.slot-switcher {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(0, 0, 0, 0.4);
-  padding: 4px 6px;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--glass-border);
-}
-
-.switcher-label {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  padding: 0 6px 0 10px;
-}
-
-.slot-btn {
-  background: transparent;
-  color: var(--text-muted);
-  border: none;
-  padding: 6px 14px;
-  border-radius: var(--radius-full);
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition-smooth);
-}
-
-.slot-btn:hover {
-  color: var(--text-main);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.slot-btn.active {
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
-  color: #ffffff;
-  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.4);
-}
-
-/* Header Right */
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.db-status-pill {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  padding: 5px 12px;
-  border-radius: var(--radius-full);
-  font-size: 0.76rem;
-  color: #34d399;
-}
-
-.status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 8px #10b981;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-}
-
-.county-search-box select {
-  background: rgba(15, 23, 42, 0.9);
-  color: var(--text-main);
-  border: 1px solid var(--glass-border);
-  padding: 6px 14px;
-  border-radius: var(--radius-md);
-  font-size: 0.82rem;
-  cursor: pointer;
-  outline: none;
-  transition: var(--transition-smooth);
-}
-
-.county-search-box select:focus {
-  border-color: var(--accent-blue);
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
-}
-
-/* ==========================================================================
-   KPI Ribbon
-   ========================================================================== */
-
-.kpi-ribbon {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  padding: 12px 24px;
-  background: rgba(10, 15, 29, 0.6);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  z-index: 990;
-}
-
-.kpi-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 10px 18px;
-  background: var(--bg-surface);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-subtle);
-  transition: var(--transition-smooth);
-}
-
-.kpi-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.25);
-  background: var(--bg-surface-hover);
-}
-
-.kpi-icon {
-  font-size: 24px;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.kpi-data {
-  display: flex;
-  flex-direction: column;
-}
-
-.kpi-title {
-  font-size: 0.74rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.kpi-value {
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #ffffff;
-}
-
-.kpi-desc {
-  font-size: 0.72rem;
-  color: var(--accent-cyan);
-}
-
-/* ==========================================================================
-   Main Map Workspace
-   ========================================================================== */
-
-.map-workspace {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
-}
-
-#map {
-  width: 100%;
-  height: 100%;
-  background: #090e1a;
-  z-index: 10;
-}
-
-/* Time Banner Floating */
-.time-banner {
-  position: absolute;
-  top: 18px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(15, 23, 42, 0.88);
-  backdrop-filter: blur(14px);
-  border: 1px solid var(--glass-border);
-  padding: 7px 18px;
-  border-radius: var(--radius-full);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  z-index: 500;
-  font-size: 0.82rem;
-  color: #38bdf8;
-  font-weight: 500;
-}
-
-/* Overlay Controls */
-.map-controls-panel {
-  position: absolute;
-  top: 18px;
-  right: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background: var(--bg-surface);
-  backdrop-filter: blur(16px);
-  padding: 12px 16px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-subtle);
-  z-index: 500;
-}
-
-.control-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.control-toggle {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  font-size: 0.78rem;
-  color: var(--text-main);
-}
-
-.control-toggle input {
-  display: none;
-}
-
-.toggle-slider {
-  width: 32px;
-  height: 18px;
-  background: #334155;
-  border-radius: 20px;
-  position: relative;
-  transition: var(--transition-smooth);
-}
-
-.toggle-slider::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 14px;
-  height: 14px;
-  background: white;
-  border-radius: 50%;
-  transition: var(--transition-smooth);
-}
-
-.control-toggle input:checked + .toggle-slider {
-  background: var(--accent-blue);
-}
-
-.control-toggle input:checked + .toggle-slider::after {
-  transform: translateX(14px);
-}
-
-.color-mode-group {
-  display: flex;
-  gap: 4px;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 3px;
-  border-radius: var(--radius-sm);
-}
-
-.mode-btn {
-  flex: 1;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 0.72rem;
-  padding: 5px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: var(--transition-smooth);
-}
-
-.mode-btn.active {
-  background: var(--accent-blue);
-  color: #fff;
-  font-weight: 500;
-}
-
-/* ==========================================================================
-   Weather Drawer / Inspector (3G)
-   ========================================================================== */
-
-.weather-drawer {
-  position: absolute;
-  top: 18px;
-  left: 20px;
-  width: 340px;
-  max-height: calc(100% - 36px);
-  background: var(--bg-surface);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-  z-index: 600;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  animation: slideInLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes slideInLeft {
-  from { opacity: 0; transform: translateX(-30px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-.drawer-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.drawer-title-group {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-}
-
-.drawer-title-group h2 {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.drawer-badge {
-  font-size: 0.7rem;
-  background: rgba(56, 189, 248, 0.15);
-  color: #38bdf8;
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-}
-
-.drawer-close-btn {
-  background: rgba(255, 255, 255, 0.08);
-  border: none;
-  color: var(--text-muted);
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  font-size: 1.2rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition-smooth);
-}
-
-.drawer-close-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
-}
-
-.drawer-body {
-  padding: 18px 20px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.hero-weather {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 12px 16px;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(99, 102, 241, 0.08));
-  border: 1px solid rgba(59, 130, 246, 0.25);
-  border-radius: var(--radius-md);
-}
-
-.hero-icon {
-  font-size: 42px;
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
-}
-
-.hero-temp {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.hero-condition {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.metric-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.metric-item {
-  background: rgba(0, 0, 0, 0.25);
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.metric-label {
-  font-size: 0.68rem;
-  color: var(--text-dim);
-}
-
-.metric-val {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text-main);
-}
-
-.font-mono {
-  font-family: monospace;
-  font-size: 0.72rem;
-  color: #34d399;
-}
-
-.forecast-timeline h3 {
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  margin-bottom: 8px;
-  letter-spacing: 0.03em;
-}
-
-.timeline-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.timeline-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-sm);
-  font-size: 0.76rem;
-}
-
-.timeline-item.active-slot {
-  border-color: var(--accent-blue);
-  background: rgba(59, 130, 246, 0.1);
-}
-
-.t-slot-name {
-  font-weight: 600;
-  color: var(--accent-cyan);
-}
-
-.t-slot-temp {
-  color: #fff;
-  font-weight: 600;
-}
-
-.t-slot-pop {
-  color: #60a5fa;
-}
-
-/* ==========================================================================
-   Map Legend
-   ========================================================================== */
-
-.map-legend {
-  position: absolute;
-  bottom: 24px;
-  right: 20px;
-  background: var(--bg-surface);
-  backdrop-filter: blur(14px);
-  padding: 10px 14px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-subtle);
-  z-index: 500;
-}
-
-.legend-title {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  margin-bottom: 6px;
-}
-
-.legend-scale {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.scale-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.7rem;
-  color: var(--text-main);
-}
-
-.scale-color {
-  width: 14px;
-  height: 10px;
-  border-radius: 2px;
-}
-
-/* ==========================================================================
-   Leaflet Custom Marker & Popup Overrides
-   ========================================================================== */
-
-.custom-station-marker {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.custom-station-marker:hover {
-  transform: scale(1.18);
-  z-index: 1000 !important;
-}
-
-.marker-pill {
-  padding: 2px 7px;
-  border-radius: 12px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #ffffff;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
-  border: 1.5px solid rgba(255, 255, 255, 0.8);
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.marker-name {
-  font-size: 0.68rem;
-  font-weight: 600;
-  color: #e2e8f0;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8), 0 0 2px #000;
-  margin-top: 1px;
-}
-
-/* Leaflet Popup Customization */
-.leaflet-popup-content-wrapper {
-  background: rgba(15, 23, 42, 0.95) !important;
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-radius: 14px !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
-  color: #f8fafc !important;
-  padding: 4px;
-}
-
+/* Leaflet 地圖彈出卡片（Popup） */
+.leaflet-popup-content-wrapper,
 .leaflet-popup-tip {
-  background: rgba(15, 23, 42, 0.95) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background-color: #ffffff !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--card-border) !important;
+  box-shadow: var(--shadow-md) !important;
 }
 
-.weather-popup {
-  padding: 6px 4px;
-  min-width: 190px;
-}
-
-.popup-title {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 2px;
-}
-
-.popup-time {
-  font-size: 0.68rem;
-  color: #94a3b8;
-  margin-bottom: 8px;
-}
-
-.popup-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.78rem;
-  padding: 3px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.popup-row:last-child {
-  border-bottom: none;
-}
-
-.popup-label {
-  color: #94a3b8;
-}
-
-.popup-val {
-  font-weight: 600;
-  color: #ffffff;
-}
-
-/* Footer */
-.app-footer {
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  background: var(--bg-primary);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  font-size: 0.7rem;
-  color: var(--text-dim);
-  z-index: 1000;
-}
-
-.footer-separator {
-  color: #334155;
-}
-
-.code-pill {
-  background: rgba(255, 255, 255, 0.06);
-  padding: 1px 6px;
-  border-radius: 4px;
-  color: #38bdf8;
+/* 地圖底色修飾 */
+#map,
+.leaflet-container {
+  background-color: #f2ede4 !important;
 }
