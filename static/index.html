@@ -4,39 +4,355 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Taiwan Weather GIS Dashboard</title>
-
-  <!-- 3A. Leaflet 1.9.4 CSS -->
+  <title>台灣氣象網格儀表板 (AirBox 風格)</title>
+  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    html,
+    body,
+    #map {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #0e1726;
+    }
+
+    /* 標題儀表板列 */
+    .dashboard-header {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      z-index: 1000;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .dashboard-header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dashboard-header p {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    /* 時段切換控制 Bar */
+    .timeslot-container {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      z-index: 1000;
+      display: flex;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      padding: 6px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .slot-btn {
+      background: transparent;
+      border: none;
+      color: #cbd5e1;
+      padding: 8px 14px;
+      font-size: 13px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .slot-btn.active {
+      background: #3b82f6;
+      color: #ffffff;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+    }
+
+    .slot-btn:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* 空氣盒子風格色塊 Icon */
+    .airbox-marker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      color: white;
+      font-weight: bold;
+      font-size: 13px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+      border: 2px solid #ffffff;
+      transition: transform 0.2s ease;
+    }
+
+    .airbox-marker:hover {
+      transform: scale(1.15);
+      z-index: 999 !important;
+    }
+
+    /* 圖例 (Legend) */
+    .legend {
+      position: absolute;
+      bottom: 25px;
+      right: 15px;
+      z-index: 1000;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      color: #e2e8f0;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .legend-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #94a3b8;
+    }
+
+    .legend-scale {
+      display: flex;
+      gap: 6px;
+    }
+
+    .legend-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .legend-color {
+      width: 28px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    /* Popup 彈窗美化 */
+    .leaflet-popup-content-wrapper {
+      background: #1e293b;
+      color: #f8fafc;
+      border-radius: 12px;
+      padding: 4px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    .leaflet-popup-tip {
+      background: #1e293b;
+    }
+
+    .popup-card h3 {
+      font-size: 16px;
+      color: #38bdf8;
+      margin-bottom: 6px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 4px;
+    }
+
+    .popup-info {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #cbd5e1;
+    }
+
+    .popup-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-top: 4px;
+    }
+  </style>
 </head>
 
 <body>
-  <!-- 3A. Taiwan Map 容器 -->
-  <div id="map" style="width: 100vw; height: 100vh;"></div>
 
-  <!-- 3G. Interactive Dashboard 資訊列與圖例 -->
-  <div class="glass-panel header-panel">
-    <h1>Taiwan Weather GIS Dashboard</h1>
-    <div id="cwa-status">CWA 資料更新時間: 載入中...</div>
+  <!-- 頂部資訊列 -->
+  <div class="dashboard-header">
+    <h1>🌤️ 台灣即時氣象 GIS 儀表板</h1>
+    <p id="data-status">資料載入中...</p>
   </div>
 
-  <div class="glass-panel legend-panel">
-    <div class="legend-title">氣溫色階 (°C)</div>
+  <!-- 時段切換按鈕 -->
+  <div class="timeslot-container" id="slot-buttons"></div>
+
+  <!-- 色階圖例 -->
+  <div class="legend">
+    <div class="legend-title">最高氣溫圖例 (°C)</div>
     <div class="legend-scale">
-      <span style="background: #2b6cb0;">&lt; 10</span>
-      <span style="background: #3182ce;">10-15</span>
-      <span style="background: #38a169;">15-20</span>
-      <span style="background: #ecc94b;">20-25</span>
-      <span style="background: #ed8936;">25-30</span>
-      <span style="background: #e53e3e;">30-35</span>
-      <span style="background: #9b2c2c;">&gt; 35</span>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #3b82f6;"></div>&lt; 20°
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #10b981;"></div>20-25°
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #f59e0b;"></div>26-30°
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #ef4444;"></div>&gt; 30°
+      </div>
     </div>
   </div>
 
+  <div id="map"></div>
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="/static/js/app.js"></script>
+  <script>
+    // 台灣縣市中心座標對應表
+    const COUNTY_COORDS = {
+      '臺北市': [25.0330, 121.5654], '新北市': [24.9157, 121.6739], '基隆市': [25.1283, 121.7419],
+      '桃園市': [24.9936, 121.3010], '新竹市': [24.8138, 120.9675], '新竹縣': [24.8387, 121.0177],
+      '苗栗縣': [24.5601, 120.8217], '臺中市': [24.1477, 120.6736], '彰化縣': [24.0518, 120.5161],
+      '南投縣': [23.9609, 120.9719], '雲林縣': [23.7092, 120.4313], '嘉義市': [23.4800, 120.4491],
+      '嘉義縣': [23.4588, 120.2928], '臺南市': [22.9997, 120.2270], '高雄市': [22.6273, 120.3014],
+      '屏東縣': [22.5519, 120.5487], '宜蘭縣': [24.7021, 121.7377], '花蓮縣': [23.9872, 121.6015],
+      '臺東縣': [22.7613, 121.1444], '澎湖縣': [23.5711, 119.5793], '金門縣': [24.4493, 118.3766],
+      '連江縣': [26.1505, 119.9499]
+    };
+
+    // 初始化深色系地圖
+    const map = L.map('map', { zoomControl: false }).setView([23.7, 121.0], 8);
+    L.control.zoom({ position: 'bottomleft' }).addTo(map);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap &copy; CARTO',
+      maxZoom: 19
+    }).addTo(map);
+
+    let weatherRawData = null;
+    let activeSlotIndex = 0;
+    let markerLayerGroup = L.layerGroup().addTo(map);
+
+    // 溫度對應色彩 (AirBox 風格)
+    function getColorByTemp(temp) {
+      const t = parseFloat(temp);
+      if (t >= 31) return '#ef4444'; // 紅 (高溫)
+      if (t >= 26) return '#f59e0b'; // 橘黃
+      if (t >= 20) return '#10b981'; // 綠
+      return '#3b82f6';              // 藍 (低溫)
+    }
+
+    // 載入台灣縣市邊界 GeoJSON
+    fetch('/api/geojson')
+      .then(res => res.ok ? res.json() : null)
+      .then(geojson => {
+        if (geojson) {
+          L.geoJSON(geojson, {
+            style: {
+              color: '#475569',
+              weight: 1.5,
+              fillColor: '#1e293b',
+              fillOpacity: 0.3
+            }
+          }).addTo(map);
+        }
+      })
+      .catch(err => console.log('GeoJSON Status:', err));
+
+    // 載入氣象資料並渲染 AirBox 標記
+    function fetchWeatherData() {
+      fetch('/api/weather')
+        .then(res => res.json())
+        .then(res => {
+          if (res.status === 'success' && res.data) {
+            weatherRawData = res;
+            document.getElementById('data-status').innerText = `來源: ${res.source} | 縣市數: ${res.total_locations}`;
+
+            renderSlotButtons(res.time_slots);
+            renderMarkers(activeSlotIndex);
+          }
+        })
+        .catch(err => {
+          document.getElementById('data-status').innerText = '資料載入失敗，請檢查 API。';
+        });
+    }
+
+    // 動態生成時段切換按鈕
+    function renderSlotButtons(slots) {
+      const container = document.getElementById('slot-buttons');
+      container.innerHTML = '';
+      slots.forEach((slot, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `slot-btn ${idx === activeSlotIndex ? 'active' : ''}`;
+        btn.innerText = `時段 ${slot.slot_index}`;
+        btn.onclick = () => {
+          activeSlotIndex = idx;
+          document.querySelectorAll('.slot-btn').forEach((b, i) => {
+            b.classList.toggle('active', i === idx);
+          });
+          renderMarkers(activeSlotIndex);
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    // 渲染地圖圖層標記
+    function renderMarkers(slotIdx) {
+      markerLayerGroup.clearLayers();
+      const data = weatherRawData.data;
+
+      for (const [locationName, forecasts] of Object.entries(data)) {
+        const item = forecasts[slotIdx] || forecasts[0];
+        const coords = COUNTY_COORDS[locationName];
+
+        if (coords && item) {
+          const maxTemp = item.max_temp;
+          const bgColor = getColorByTemp(maxTemp);
+
+          // 建立 AirBox 數字圓點標記
+          const customIcon = L.divIcon({
+            className: 'custom-airbox-icon',
+            html: `<div class="airbox-marker" style="background-color: ${bgColor}; width: 38px; height: 38px;">${maxTemp}°</div>`,
+            iconSize: [38, 38],
+            iconAnchor: [19, 19]
+          });
+
+          const popupContent = `
+                        <div class="popup-card">
+                            <h3>📍 ${locationName}</h3>
+                            <div class="popup-info">
+                                🌡️ 氣溫範疇：<b>${item.min_temp}°C ~ ${item.max_temp}°C</b><br>
+                                ☁️ 天氣狀況：${item.weather}<br>
+                                🌧️ 降雨機率：${item.pop}%<br>
+                                <span class="popup-badge" style="background:${bgColor}; color:#fff;">
+                                    ${item.weather} (${maxTemp}°C)
+                                </span>
+                            </div>
+                        </div>
+                    `;
+
+          const marker = L.marker(coords, { icon: customIcon })
+            .bindPopup(popupContent);
+
+          markerLayerGroup.addLayer(marker);
+        }
+      }
+    }
+
+    fetchWeatherData();
+  </script>
 </body>
 
 </html>
