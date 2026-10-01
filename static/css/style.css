@@ -1,128 +1,107 @@
 /* ==================================================
-   Taiwan Weather GIS - 燕麥奶茶風格全覆蓋 (Milk Tea Theme)
+   Taiwan CWA Weather GIS - Windy + Leaflet Dashboard
    ================================================== */
 
 :root {
-  /* 奶茶風暖色調 */
-  --bg-primary: #f8f5f0;
-  --bg-secondary: #ede6dc;
-  --card-bg: rgba(255, 255, 255, 0.85);
-  --card-border: #e2d7c9;
-
-  --text-main: #4a3b32;
-  --text-muted: #8c7b6c;
-
-  --accent-color: #c48b51;
-  --accent-hover: #a67039;
+  --panel-bg: rgba(255, 255, 255, 0.88);
+  --panel-border: rgba(226, 215, 201, 0.8);
+  --text-primary: #2d3748;
+  --text-secondary: #718096;
+  --shadow-main: 0 4px 20px rgba(0, 0, 0, 0.12);
 }
 
-/* 全局背景與字體覆蓋 */
-body {
-  background-color: var(--bg-primary) !important;
-  color: var(--text-main) !important;
+* {
+  box-sizing: border-box;
 }
 
-/* 卡片、側邊欄、頂部列深色強制覆蓋 */
-div,
-header,
-nav,
-section,
-aside,
-main,
-.card,
-.panel,
-.sidebar,
-.header,
-.stat-card,
-.glass-panel,
-.bg-slate-900,
-.bg-slate-800,
-.bg-slate-950,
-.bg-gray-900 {
-  background-color: var(--card-bg) !important;
-  color: var(--text-main) !important;
-  border-color: var(--card-border) !important;
+body,
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-/* 頂部列 Header */
-header,
-.header {
-  background-color: #ffffff !important;
-  border-bottom: 1px solid var(--card-border) !important;
-  box-shadow: var(--shadow-sm) !important;
+/* 滿版 Windy 地圖容器 */
+#windy {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
 }
 
-/* 文字顏色修飾 */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-.title,
-strong {
-  color: var(--text-main) !important;
+/* 半透明毛玻璃懸浮面板 (Glassmorphism) */
+.glass-panel {
+  position: absolute;
+  z-index: 1000;
+  background: var(--panel-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  box-shadow: var(--shadow-main);
+  color: var(--text-primary);
 }
 
-p,
-span,
-label,
-.subtitle,
-.text-muted,
-.text-slate-400,
-.text-slate-300 {
-  color: var(--text-muted) !important;
+/* 頂部標題列 */
+.header-panel {
+  top: 20px;
+  left: 20px;
 }
 
-/* 按鈕與時段切換切換區 */
-button,
-.btn,
-.tab-btn,
-.time-btn {
-  background-color: var(--bg-secondary) !important;
-  color: var(--text-main) !important;
-  border: 1px solid var(--card-border) !important;
-  transition: all 0.2s ease !important;
+.header-panel h1 {
+  margin: 0 0 4px 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
-button.active,
-.btn.active,
-.tab-btn.active,
-.time-btn.active,
-[data-active="true"] {
-  background-color: var(--accent-color) !important;
-  color: #ffffff !important;
-  border-color: var(--accent-color) !important;
+#cwa-status {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
 }
 
-/* 狀態標籤 (SQLite / CWA API) */
-.badge,
-.status-badge,
-.data-source-badge {
-  background-color: var(--accent-light) !important;
-  color: var(--accent-color) !important;
-  border: 1px solid var(--card-border) !important;
+/* 右下角氣溫色階圖例 (Legend) */
+.legend-panel {
+  bottom: 30px;
+  right: 20px;
 }
 
-/* Logo 標題漸層 */
-.logo-text h1 {
-  background: linear-gradient(135deg, #4a3b32 30%, #c48b51 100%) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
+.legend-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-primary);
 }
 
-/* Leaflet 地圖彈出卡片（Popup） */
-.leaflet-popup-content-wrapper,
+.legend-scale {
+  display: flex;
+  gap: 3px;
+}
+
+.legend-scale span {
+  display: inline-block;
+  padding: 4px 8px;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 4px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Leaflet 地圖彈出視窗 (Popup) 微調 */
+.leaflet-popup-content-wrapper {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(8px);
+  border-radius: 10px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
 .leaflet-popup-tip {
-  background-color: #ffffff !important;
-  color: var(--text-main) !important;
-  border: 1px solid var(--card-border) !important;
-  box-shadow: var(--shadow-md) !important;
-}
-
-/* 地圖底色修飾 */
-#map,
-.leaflet-container {
-  background-color: #f2ede4 !important;
+  background: rgba(255, 255, 255, 0.95) !important;
 }

@@ -1,201 +1,47 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>臺灣氣象 GIS 儀表板 — AIoT L3 CWA HW1</title>
-  
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <!-- Custom CSS -->
+  <title>Taiwan CWA Temperature Broadcast - Windy GIS</title>
+
+  <!-- 1. Leaflet 1.4.0 (Windy API 相容版本) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
+
+  <!-- 2. Windy Map Forecast API Bootstrapper -->
+  <script src="https://api.windy.com/assets/map-forecast/libBoot.js"></script>
+
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
+
 <body>
-  <div id="app" class="dashboard-layout">
-    <!-- Top Header -->
-    <header class="app-header">
-      <div class="header-left">
-        <div class="logo-badge">
-          <span class="logo-icon">⛅</span>
-          <div class="logo-text">
-            <h1>Taiwan Weather GIS</h1>
-            <span class="subtitle">AIoT L3 CWA HW1 — Gate 3 Local Taiwan GIS</span>
-          </div>
-        </div>
-      </div>
+  <!-- 全螢幕 Windy 地圖容器 -->
+  <div id="windy" style="width: 100vw; height: 100vh;"></div>
 
-      <div class="header-center">
-        <!-- Time Slot Switcher -->
-        <div class="slot-switcher" id="slotSwitcher">
-          <span class="switcher-label">預報時段：</span>
-          <button class="slot-btn active" data-slot="0" id="slotBtn0">時段 1</button>
-          <button class="slot-btn" data-slot="1" id="slotBtn1">時段 2</button>
-          <button class="slot-btn" data-slot="2" id="slotBtn2">時段 3</button>
-        </div>
-      </div>
-
-      <div class="header-right">
-        <div class="db-status-pill" id="dbStatus">
-          <span class="status-dot online"></span>
-          <span class="status-label">SQLite: weather.db</span>
-        </div>
-        <div class="county-search-box">
-          <select id="countySelect" aria-label="選擇縣市">
-            <option value="">快速定位縣市...</option>
-          </select>
-        </div>
-      </div>
-    </header>
-
-    <!-- KPI Ribbon -->
-    <section class="kpi-ribbon" id="kpiRibbon">
-      <div class="kpi-card" id="kpiHigh">
-        <div class="kpi-icon hot">🔥</div>
-        <div class="kpi-data">
-          <span class="kpi-title">全臺最高溫</span>
-          <span class="kpi-value" id="kpiHighVal">--.-°C</span>
-          <span class="kpi-desc" id="kpiHighLoc">--</span>
-        </div>
-      </div>
-
-      <div class="kpi-card" id="kpiLow">
-        <div class="kpi-icon cold">❄️</div>
-        <div class="kpi-data">
-          <span class="kpi-title">全臺最低溫</span>
-          <span class="kpi-value" id="kpiLowVal">--.-°C</span>
-          <span class="kpi-desc" id="kpiLowLoc">--</span>
-        </div>
-      </div>
-
-      <div class="kpi-card" id="kpiRain">
-        <div class="kpi-icon rain">🌧️</div>
-        <div class="kpi-data">
-          <span class="kpi-title">全島平均降雨率</span>
-          <span class="kpi-value" id="kpiRainVal">--%</span>
-          <span class="kpi-desc" id="kpiRainDesc">--</span>
-        </div>
-      </div>
-
-      <div class="kpi-card" id="kpiCount">
-        <div class="kpi-icon map">🗺️</div>
-        <div class="kpi-data">
-          <span class="kpi-title">覆蓋縣市總數</span>
-          <span class="kpi-value" id="kpiCountVal">22</span>
-          <span class="kpi-desc">全臺灣本島與離島</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- Main Map Workspace -->
-    <main class="map-workspace">
-      <!-- Leaflet Map Container -->
-      <div id="map"></div>
-
-      <!-- Time Interval Banner -->
-      <div class="time-banner" id="timeBanner">
-        <span class="time-clock-icon">🕒</span>
-        <span id="currentSlotTime">載入時段預報中...</span>
-      </div>
-
-      <!-- Map Overlay Controls -->
-      <div class="map-controls-panel">
-        <div class="control-group">
-          <label class="control-toggle">
-            <input type="checkbox" id="toggleGeoJSON" checked>
-            <span class="toggle-slider"></span>
-            <span class="toggle-text">行政區色階 (3F)</span>
-          </label>
-          <label class="control-toggle">
-            <input type="checkbox" id="toggleMarkers" checked>
-            <span class="toggle-slider"></span>
-            <span class="toggle-text">測站標記 (3D)</span>
-          </label>
-        </div>
-        <div class="color-mode-group">
-          <button class="mode-btn active" data-mode="temp" id="modeTemp">氣溫著色</button>
-          <button class="mode-btn" data-mode="pop" id="modePop">降雨著色</button>
-        </div>
-      </div>
-
-      <!-- Detail Weather Drawer / Inspector -->
-      <aside class="weather-drawer" id="weatherDrawer">
-        <div class="drawer-header">
-          <div class="drawer-title-group">
-            <h2 id="drawerCityName">臺中市</h2>
-            <span class="drawer-badge" id="drawerRegionBadge">中部氣象站</span>
-          </div>
-          <button class="drawer-close-btn" id="drawerCloseBtn" aria-label="關閉卡片">×</button>
-        </div>
-
-        <div class="drawer-body">
-          <!-- Primary Highlight -->
-          <div class="hero-weather">
-            <div class="hero-icon" id="drawerWeatherIcon">🌤️</div>
-            <div class="hero-temp-group">
-              <div class="hero-temp" id="drawerTempRange">26°C ~ 33°C</div>
-              <div class="hero-condition" id="drawerWeatherDesc">晴時多雲</div>
-            </div>
-          </div>
-
-          <div class="metric-grid">
-            <div class="metric-item">
-              <span class="metric-label">💧 降雨機率</span>
-              <span class="metric-val" id="drawerPoP">0%</span>
-            </div>
-            <div class="metric-item">
-              <span class="metric-label">🌡️ 最低 / 最高</span>
-              <span class="metric-val" id="drawerMinMax">26°C / 33°C</span>
-            </div>
-            <div class="metric-item">
-              <span class="metric-label">🕒 資料時段</span>
-              <span class="metric-val" id="drawerSlotIndex">時段 1 (今明預報)</span>
-            </div>
-            <div class="metric-item">
-              <span class="metric-label">📦 資料庫來源</span>
-              <span class="metric-val font-mono">SQLite (weather.db)</span>
-            </div>
-          </div>
-
-          <!-- 3-Slot Forecast Timeline -->
-          <div class="forecast-timeline">
-            <h3>36 小時三階段趨勢預報</h3>
-            <div class="timeline-cards" id="drawerTimeline">
-              <!-- Rendered via JS -->
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      <!-- Map Legend -->
-      <div class="map-legend" id="mapLegend">
-        <div class="legend-title" id="legendTitle">氣溫色階 (°C)</div>
-        <div class="legend-scale" id="legendScale">
-          <div class="scale-item"><span class="scale-color" style="background:#3b82f6;"></span> &lt; 24°C</div>
-          <div class="scale-item"><span class="scale-color" style="background:#10b981;"></span> 24 ~ 27°C</div>
-          <div class="scale-item"><span class="scale-color" style="background:#f59e0b;"></span> 27 ~ 30°C</div>
-          <div class="scale-item"><span class="scale-color" style="background:#ef4444;"></span> 30 ~ 33°C</div>
-          <div class="scale-item"><span class="scale-color" style="background:#8b5cf6;"></span> &gt; 33°C</div>
-        </div>
-      </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="app-footer">
-      <span>AIoT L3 CWA HW1 — Local Taiwan GIS</span>
-      <span class="footer-separator">•</span>
-      <span>資料庫來源：<code class="code-pill">weather.db (SQLite)</code></span>
-      <span class="footer-separator">•</span>
-      <span>中央氣象署真實預報 (F-C0032-001)</span>
-    </footer>
+  <!-- 頂部資訊列 (懸浮面板) -->
+  <div class="glass-panel header-panel">
+    <h1>Taiwan Weather GIS (CWA + Windy)</h1>
+    <div id="cwa-status">CWA 資料更新時間: 載入中...</div>
   </div>
 
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <!-- App Logic -->
+  <!-- 溫度的色階圖例 (Legend) -->
+  <div class="glass-panel legend-panel">
+    <div class="legend-title">氣溫色階 (°C)</div>
+    <div class="legend-scale">
+      <span style="background: #2b6cb0;">
+        < 10</span>
+          <span style="background: #3182ce;">10-15</span>
+          <span style="background: #38a169;">15-20</span>
+          <span style="background: #ecc94b;">20-25</span>
+          <span style="background: #ed8936;">25-30</span>
+          <span style="background: #e53e3e;">30-35</span>
+          <span style="background: #9b2c2c;">> 35</span>
+    </div>
+  </div>
+
   <script src="/static/js/app.js"></script>
 </body>
+
 </html>
