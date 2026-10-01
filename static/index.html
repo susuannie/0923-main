@@ -4,43 +4,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Taiwan CWA Temperature Broadcast - Windy GIS</title>
+  <title>Taiwan Weather GIS Dashboard</title>
 
-  <!-- 1. Leaflet 1.4.0 (Windy API 相容版本) -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
-
-  <!-- 2. Windy Map Forecast API Bootstrapper -->
-  <script src="https://api.windy.com/assets/map-forecast/libBoot.js"></script>
-
+  <!-- 3A. Leaflet 1.9.4 CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 
 <body>
-  <!-- 全螢幕 Windy 地圖容器 -->
-  <div id="windy" style="width: 100vw; height: 100vh;"></div>
+  <!-- 3A. Taiwan Map 容器 -->
+  <div id="map" style="width: 100vw; height: 100vh;"></div>
 
-  <!-- 頂部資訊列 (懸浮面板) -->
+  <!-- 3G. Interactive Dashboard 資訊列與圖例 -->
   <div class="glass-panel header-panel">
-    <h1>Taiwan Weather GIS (CWA + Windy)</h1>
+    <h1>Taiwan Weather GIS Dashboard</h1>
     <div id="cwa-status">CWA 資料更新時間: 載入中...</div>
   </div>
 
-  <!-- 溫度的色階圖例 (Legend) -->
   <div class="glass-panel legend-panel">
     <div class="legend-title">氣溫色階 (°C)</div>
     <div class="legend-scale">
-      <span style="background: #2b6cb0;">
-        < 10</span>
-          <span style="background: #3182ce;">10-15</span>
-          <span style="background: #38a169;">15-20</span>
-          <span style="background: #ecc94b;">20-25</span>
-          <span style="background: #ed8936;">25-30</span>
-          <span style="background: #e53e3e;">30-35</span>
-          <span style="background: #9b2c2c;">> 35</span>
+      <span style="background: #2b6cb0;">&lt; 10</span>
+      <span style="background: #3182ce;">10-15</span>
+      <span style="background: #38a169;">15-20</span>
+      <span style="background: #ecc94b;">20-25</span>
+      <span style="background: #ed8936;">25-30</span>
+      <span style="background: #e53e3e;">30-35</span>
+      <span style="background: #9b2c2c;">&gt; 35</span>
     </div>
   </div>
 
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="/static/js/app.js"></script>
 </body>
 

@@ -1,4 +1,42 @@
-// 1. 氣溫對應色碼函數 (規格書 Section 15)
+// ==========================================
+// Gate 3: Taiwan GIS Dashboard (Leaflet + OpenStreetMap)
+// ==========================================
+
+// 全局狀態物件 (包含 3B 要求的 state.taichungMarker)
+const state = {
+  taichungMarker: null,
+  weatherData: []
+};
+
+// 3A. Taiwan Map: 初始化 Leaflet 地圖
+const map = L.map('map').setView([23.7, 121.0], 7);
+
+// 3A. OpenStreetMap 圖層
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors',
+  maxZoom: 19
+}).addTo(map);
+
+// 3B. One Marker: 臺中市標記 (指定 state.taichungMarker 變數)
+state.taichungMarker = L.marker([24.1477, 120.6736]).addTo(map);
+
+// 3C. Weather Popup: 氣象彈窗生成函數
+function buildWeatherPopupHtml(station) {
+  return `
+        <div style="font-size: 13px; line-height: 1.6; color: #333;">
+            <strong style="font-size: 15px; color: #1a202c;">${station.station_name || station.location_name || '氣象測站'}</strong><br/>
+            🌡️ 氣溫：<b>${station.temperature_c ?? station.max_temp ?? '-'} °C</b><br/>
+            🌧️ 降雨機率：${station.pop ?? '-'} %<br/>
+            🌤️ 天氣現象：${station.weather || '-'}<br/>
+            🕒 時間：${station.observed_at || station.updated_at || '-'}
+        </div>
+    `;
+}
+
+// 綁定 3B 標記的 3C 彈窗
+state.taichungMarker.bindPopup(buildWeatherPopupHtml({ station_name: '臺中市基準點', temperature_c: 25 }));
+
+// 溫度色階
 function getColorByTemp(temp) {
   if (temp < 10) return "#2b6cb0";
   if (temp < 15) return "#3182ce";
@@ -9,70 +47,81 @@ function getColorByTemp(temp) {
   return "#9b2c2c";
 }
 
-// 2. Windy 初始化參數 (規格書 Section 12)
-const options = {
-  key: "YOUR_WINDY_API_KEY",
-  lat: 23.7,
-  lon: 121.0,
-  zoom: 7,
-  overlay: "wind",
-  verbose: true
-};
+const weatherLayer = L.layerGroup().addTo(map);
 
-// 3. 啟動 Windy 並疊加 CWA 氣溫圖層 (規格書 Section 12 & 14)
-if (typeof windyInit === 'function') {
-  windyInit(options, windyAPI => {
-    const { map, store } = windyAPI;
+// 3D. Taiwan Locations: 渲染全台多點資料
+function render3DTaiwanLocations(stations) {
+  weatherLayer.clearLayers();
+  stations.forEach(station => {
+    const lat = station.lat;
+    const lon = station.lon;
+    const temp = station.temperature_c ?? station.max_temp;
 
-    // 預設開啟風速背景圖層
-    store.set("overlay", "wind");
+    if (lat && lon) {
+      const marker = L.circleMarker([lat, lon], {
+        radius: 8,
+        fillColor: getColorByTemp(temp ?? 25),
+        fillOpacity: 0.85,
+        color: "#ffffff",
+        weight: 1.5
+      });
 
-    // 建立 CWA 測站 LayerGroup
-    const cwaLayer = L.layerGroup().addTo(map);
-
-    // 從 FastAPI 後端讀取 CWA 資料
-    async function fetchCwaTemperature() {
-      try {
-        const response = await fetch('/api/temperature/latest');
-        if (!response.ok) throw new Error('Network error');
-        const data = await response.json();
-
-        cwaLayer.clearLayers();
-
-        // 更新頂部資訊列時間
-        if (data.updated_at) {
-          const statusElem = document.getElementById('cwa-status');
-          if (statusElem) {
-            statusElem.innerText = '最後更新: ' + data.updated_at;
-          }
-        }
-
-        // 繪製每個 CWA 觀測站的色塊與 Popup
-        const stations = data.stations || [];
-        stations.forEach(station => {
-          if (station.lat && station.lon && station.temperature_c !== null && station.temperature_c !== undefined) {
-            const marker = L.circleMarker([station.lat, station.lon], {
-              radius: 7,
-              fillColor: getColorByTemp(station.temperature_c),
-              fillOpacity: 0.85,
-              color: "#ffffff",
-              weight: 1
-            });
-
-            // 單行安全版 Popup 內容 (防止換行貼上跑掉)
-            const popupContent = 'marker.bindPopup(popupContent)'
-            marker.addTo(cwaLayer);
-          }
-        });
-      } catch (error) {
-        console.error("無法載入 CWA 氣溫資料:", error);
-      }
+      marker.bindPopup(buildWeatherPopupHtml(station));
+      marker.addTo(weatherLayer);
     }
-
-    // 首次載入與每 5 分鐘自動刷新 (規格書 Section 16)
-    fetchCwaTemperature();
-    setInterval(fetchCwaTemperature, 300000);
   });
-} else {
-  console.error("Windy API (libBoot.js) 未成功載入。");
 }
+
+// 3G. Interactive Dashboard: 更新面板與 KPI
+function updateKpis(data) {
+  const statusElem = document.getElementById('cwa-status');
+  if (statusElem && data.updated_at) {
+    statusElem.innerText = '最後更新: ' + data.updated_at;
+  }
+}
+
+// 3E. Database -> GIS: 讀取 API 氣象資料 (包含 /api/weather 路徑)
+async function loadWeatherData() {
+  try {
+    let response = await fetch('/api/weather');
+    if (!response.ok) {
+      response = await fetch('/api/temperature/latest');
+    }
+    if (!response.ok) return;
+
+    const data = await response.json();
+    state.weatherData = data.stations || [];
+
+    render3DTaiwanLocations(state.weatherData);
+    updateKpis(data);
+  } catch (error) {
+    console.error("氣象資料載入失敗:", error);
+  }
+}
+
+// 3F. Taiwan GeoJSON: 載入縣市邊界圖層
+async function renderGeoJsonLayer() {
+  try {
+    let response = await fetch('/static/data/taiwan.geojson');
+    if (!response.ok) {
+      response = await fetch('/static/data/taiwan_counties.json');
+    }
+    if (!response.ok) return;
+
+    const geojson = await response.json();
+    L.geoJSON(geojson, {
+      style: {
+        color: "#4a5568",
+        weight: 1,
+        fillColor: "#3182ce",
+        fillOpacity: 0.05
+      }
+    }).addTo(map);
+  } catch (e) {
+    console.log("GeoJSON 載入說明:", e);
+  }
+}
+
+// 初始化執行
+renderGeoJsonLayer();
+loadWeatherData();
